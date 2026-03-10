@@ -1,0 +1,43 @@
+name: Mobile-App-Generator
+on: [push, workflow_dispatch]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Capacitor & Dependencies
+        run: |
+          mkdir -p www
+          # تأمين وجود الملفات الأساسية
+          [ -f index.html ] && cp index.html www/ || echo "<html><body>App Ready</body></html>" > www/index.html
+          [ -f style.css ] && cp style.css www/ || touch www/style.css
+          [ -f script.js ] && cp script.js www/ || touch www/script.js
+
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+
+          npx cap init "My-App" "com.mahmoud.app" --web-dir www --confirm
+          npx cap add android
+
+      - name: Create APK File
+        run: |
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Final Step - Download APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Download-Your-App
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          
