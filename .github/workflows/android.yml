@@ -13,18 +13,18 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Initialize App and Capacitor
+      - name: Initialize App
         run: |
           mkdir -p www
           cp index.html style.css script.js www/ || true
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "My App" "com.example.app" --web-dir www
+          npx cap init "My-App" "com.mahmoud.app" --web-dir www
           npx cap add android
-          npx cap copy
 
-      - name: Build with Gradle
+      - name: Sync and Build
         run: |
+          npx cap copy
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
@@ -32,6 +32,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: My-Application-APK
+          name: My-App-Release
           path: android/app/build/outputs/apk/debug/app-debug.apk
           
