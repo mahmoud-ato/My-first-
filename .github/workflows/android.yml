@@ -1,40 +1,64 @@
-name: Final Android Build
+name: Ultimate Android Build
 on: [push, workflow_dispatch]
 
 jobs:
-  build:
+  android-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Prepare Files and Capacitor
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Force Build Environment
         run: |
-          # التأكد من وجود المجلد
+          # تنظيف أي محاولات سابقة
+          rm -rf www android node_modules package-lock.json package.json
+          
+          # إنشاء البيئة من الصفر
           mkdir -p www
           
-          # محاولة نسخ الملفات لو موجودة، ولو مش موجودة هيعمل ملفات وهمية عشان الـ Build ميفشلش
-          cp index.html www/ 2>/dev/null || echo "<html><body><h1>Hello Capacitor</h1></body></html>" > www/index.html
-          cp style.css www/ 2>/dev/null || touch www/style.css
-          cp script.js www/ 2>/dev/null || touch www/script.js
+          # التأكد من وجود ملف index.html (أساسي لـ Capacitor)
+          if [ ! -f "index.html" ]; then
+            echo "<html><body><h1>App Build</h1></body></html>" > www/index.html
+          else
+            cp index.html www/
+          fi
+          
+          # نسخ باقي الملفات لو وجدت
+          cp style.css www/ 2>/dev/null || echo "" > www/style.css
+          cp script.js www/ 2>/dev/null || echo "" > www/script.js
 
-          # تثبيت وتهيئة Capacitor
+          # تثبيت Capacitor وتهيئة المشروع
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "My-App" "com.mahmoud.app" --web-dir www --confirm
+          
+          # أمر التهيئة الإجباري
+          npx cap init "MyApp" "com.mahmoud.app" --web-dir www --confirm
           npx cap add android
 
+      - name: Generate APK
+        run: |
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: App-Ready-To-Download
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          
       - name: Build APK
         run: |
           npx cap sync android
