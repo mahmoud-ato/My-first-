@@ -1,55 +1,55 @@
-name: Build Android APK
+name: Professional Android Build
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install Dependencies and Init Capacitor
+      - name: Initialize Environment & Dependencies
         run: |
-          # إنشاء مجلد الويب والتأكد من وجود الملفات
+          # تجهيز مجلد الويب
           mkdir -p www
-          [ -f index.html ] && cp index.html www/
-          [ -f style.css ] && cp style.css www/
-          [ -f script.js ] && cp script.js www/
+          cp index.html style.css script.js www/ 2>/dev/null || true
           
-          # تثبيت الأدوات اللازمة
+          # تثبيت المكتبات وتجهيز Capacitor بشكل احترافي
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core @capacitor/cli @capacitor/android --save-exact
           
-          # تهيئة المشروع
-          npx cap init "My-App" "com.mahmoud.app" --web-dir www
+          # تهيئة المشروع بدون تدخل بشري
+          npx cap init "My-App" "com.mahmoud.app" --web-dir www --confirm
           npx cap add android
 
-      - name: Sync and Build APK
+      - name: Android Build (Gradle)
         run: |
           npx cap sync android
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          # بناء نسخة الـ Debug مع تعطيل الـ Daemon لتوفير الوقت
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK Artifact
+      - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
-          name: App-Debug-Build
+          name: Android-Debug-Build
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 5
