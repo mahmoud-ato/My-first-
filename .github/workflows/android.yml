@@ -1,8 +1,8 @@
-name: Ultimate Android Build
+name: Mobile-App-Generator
 on: [push, workflow_dispatch]
 
 jobs:
-  android-build:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,55 +19,31 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Force Build Environment
+      - name: Build Environment
         run: |
-          # تنظيف أي محاولات سابقة
-          rm -rf www android node_modules package-lock.json package.json
-          
-          # إنشاء البيئة من الصفر
+          # تجهيز الملفات
           mkdir -p www
-          
-          # التأكد من وجود ملف index.html (أساسي لـ Capacitor)
-          if [ ! -f "index.html" ]; then
-            echo "<html><body><h1>App Build</h1></body></html>" > www/index.html
-          else
-            cp index.html www/
-          fi
-          
-          # نسخ باقي الملفات لو وجدت
-          cp style.css www/ 2>/dev/null || echo "" > www/style.css
-          cp script.js www/ 2>/dev/null || echo "" > www/script.js
+          [ -f index.html ] && cp index.html www/ || echo "<html><body>Build Ready</body></html>" > www/index.html
+          [ -f style.css ] && cp style.css www/ || touch www/style.css
+          [ -f script.js ] && cp script.js www/ || touch www/script.js
 
-          # تثبيت Capacitor وتهيئة المشروع
+          # تثبيت Capacitor
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          
-          # أمر التهيئة الإجباري
-          npx cap init "MyApp" "com.mahmoud.app" --web-dir www --confirm
+
+          # التهيئة بدون --confirm (استخدام الرد التلقائي)
+          npx cap init "My-App" "com.mahmoud.app" --web-dir www
           npx cap add android
 
-      - name: Generate APK
+      - name: Create APK File
         run: |
           npx cap sync android
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Save APK
+      - name: Final Step - Download APK
         uses: actions/upload-artifact@v4
         with:
-          name: App-Ready-To-Download
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          
-      - name: Build APK
-        run: |
-          npx cap sync android
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: App-Package
+          name: Download-Your-App
           path: android/app/build/outputs/apk/debug/app-debug.apk
