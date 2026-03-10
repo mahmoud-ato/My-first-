@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>يومياتي</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-light">
+    <div id="app">
+        <div id="splash-screen" class="screen active">
+            <div class="logo">📅</div>
+            <div class="app-name">يومياتي</div>
+        </div>
+
+        <div id="welcome-screen" class="screen">
+            <div class="welcome-message">بشمهندس محمود بيسلم عليك يا قمر 👷👋</div>
+            <div class="circle-button" id="start-btn">يلا بينا..</div>
+        </div>
+
+        <div id="system-screen" class="screen">
+            <div class="question">حدد نظام اجازتك</div>
+            <div class="option-buttons">
+                <div class="option-btn" data-system="12-3">١٢ يوم عمل / ٣ أجازه</div>
+                <div class="option-btn" data-system="24-6">٢٤ يوم عمل / ٦ أجازه</div>
+                <div class="option-btn" data-system="custom">مخصص</div>
+            </div>
+        </div>
+
+        <div id="date-screen" class="screen">
+            <div class="question">أول يوم إجازة جاي امتى؟</div>
+            <input type="date" id="first-holiday">
+            <button class="btn" id="date-next">التالي</button>
+        </div>
+
+        <div id="theme-screen" class="screen">
+            <div class="question">اختر ثيمك المفضل</div>
+            <div class="theme-grid">
+                <div class="theme-item" data-theme="theme-light">أبيض</div>
+                <div class="theme-item" data-theme="theme-gold">ذهبي</div>
+                <div class="theme-item" data-theme="theme-blue">أزرق</div>
+                <div class="theme-item" data-theme="theme-green">أخضر</div>
+                <div class="theme-item" data-theme="theme-purple">بنفسجي</div>
+            </div>
+            <button class="btn" id="theme-next">عرض التقويم</button>
+        </div>
+
+        <div id="main-screen" class="screen">
+            <div class="calendar-header">
+                <div class="menu-icon" id="menu-btn">☰</div>
+                <div class="month-year" id="display-month"></div>
+                <div style="width:40px;"></div>
+            </div>
+            <div class="weekdays">
+                <span>س</span><span>ح</span><span>ن</span><span>ث</span><span>ع</span><span>خ</span><span>ج</span>
+            </div>
+            <div id="calendar-container" class="calendar-container">
+                <div id="calendar-grid" class="calendar-grid"></div>
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+        <div class="side-drawer" id="sideDrawer">
+            <div class="drawer-btn" id="reset-system">⚙️ إعادة ضبط</div>
+            <div class="drawer-btn" id="change-theme">🎨 تبديل الثيم</div>
+        </div>
+
+        <div id="customModal" class="modal">
+            <div class="modal-content">
+                <h3>نظام مخصص</h3>
+                <input type="number" id="workDays" placeholder="أيام العمل" value="12">
+                <input type="number" id="holidayDays" placeholder="أيام الإجازة" value="3">
+                <button id="saveCustom" class="btn">حفظ</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
